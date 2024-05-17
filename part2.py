@@ -23,12 +23,12 @@ nlp = pipeline('sentiment-analysis', model=model, tokenizer=tokenizer)
 # Executive Summary, Mission, and Vision Statement
 def analyze_text(text):
     sentiment = nlp(text)[0]
-    return sentiment
+    return sentiment['score'], sentiment['label']
 
 # Market Analysis
 def market_analysis(text):
     sentiment = TextBlob(text).sentiment
-    return sentiment
+    return sentiment.polarity, sentiment.subjectivity
 
 def market_segmentation(data):
     scaler = StandardScaler()
@@ -95,6 +95,63 @@ def named_entity_recognition(text):
     entities = nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(text)))
     return entities
 
+# Aggregate results and compute grade
+def compute_grade(results):
+    # Define weights for each section
+    weights = {
+        'exec_summary': 0.2,
+        'market_analysis': 0.2,
+        'financial_projections': 0.3,
+        'existing_financial_data': 0.2,
+        'additional_documentation': 0.1
+    }
+    
+    # Normalize results to a 0-100 scale
+    normalized_results = {key: (value - min(results.values())) / (max(results.values()) - min(results.values())) * 100 for key, value in results.items()}
+    
+    # Compute weighted grade
+    grade = sum(normalized_results[key] * weights[key] for key in normalized_results)
+    return grade
+
+# Generate feedback using GPT
+def generate_feedback(exec_summary_analysis, market_sentiment, market_segments, market_forecast, financial_forecast, financial_ratios, financial_anomalies, credit_risk, fraud_detection_results, credit_scores, doc_classification, ner_results):
+    feedback_template = f"""
+    Executive Summary Analysis:
+    Sentiment Score: {exec_summary_analysis[0]}, Sentiment: {exec_summary_analysis[1]}
+    
+    Market Analysis:
+    Sentiment Polarity: {market_sentiment[0]}, Subjectivity: {market_sentiment[1]}
+    Market Segmentation: {market_segments}
+    Market Forecast: {market_forecast}
+    
+    Financial Projections:
+    Financial Forecast: {financial_forecast}
+    Financial Ratios: {financial_ratios}
+    Financial Anomalies: {financial_anomalies}
+    
+    Existing Financial Data:
+    Credit Risk: {credit_risk}
+    Fraud Detection Results: {fraud_detection_results}
+    Credit Scores: {credit_scores}
+    
+    Additional Documentation:
+    Document Classification: {doc_classification}
+    Named Entities: {ner_results}
+    
+    Based on the analysis, here is the comprehensive feedback for the business:
+    - The executive summary shows a generally {exec_summary_analysis[1].lower()} sentiment, indicating a positive outlook.
+    - The market analysis reveals a sentiment polarity of {market_sentiment[0]} and subjectivity of {market_sentiment[1]}, suggesting {'' if market_sentiment[0] > 0 else 'a need for improvement in market perception.'}
+    - The market segmentation identified key customer segments that should be targeted.
+    - Financial projections indicate {'' if financial_forecast[-1] > financial_forecast[0] else 'potential challenges in revenue growth.'}
+    - Financial ratios and anomaly detection suggest {'' if len(financial_anomalies) == 0 else 'areas of concern that need addressing.'}
+    - Credit risk and fraud detection models highlight {'' if credit_risk.mean() < 0.5 else 'moderate to high credit risk and potential fraud concerns.'}
+    - Document classification and NER provide insights into the business's positioning and key focus areas.
+
+    Overall, the business receives a grade of {compute_grade(results)} out of 100.
+    """
+
+    return feedback_template
+
 # Example usage
 text = "Sample executive summary, mission, and vision statement."
 market_data = pd.DataFrame()  # Assume this is your market data
@@ -104,41 +161,39 @@ labels = [0, 1]  # Example labels for classification
 
 # Analyzing executive summary
 exec_summary_analysis = analyze_text(text)
-print(f"Executive Summary Analysis: {exec_summary_analysis}")
 
 # Market analysis
 market_sentiment = market_analysis(text)
-print(f"Market Sentiment: {market_sentiment}")
-
 market_segments = market_segmentation(market_data)
-print(f"Market Segments: {market_segments}")
-
 market_forecast = forecast_trends(market_data)
-print(f"Market Forecast: {market_forecast}")
 
 # Financial projections
 financial_forecast = financial_forecasting(financial_data)
-print(f"Financial Forecast: {financial_forecast}")
-
 financial_ratios = ratio_analysis(financial_data)
-print(f"Financial Ratios: {financial_ratios}")
-
 financial_anomalies = anomaly_detection(financial_data)
-print(f"Financial Anomalies: {financial_anomalies}")
 
 # Existing financial data analysis
 credit_risk = credit_risk_assessment(financial_data)
-print(f"Credit Risk: {credit_risk}")
-
 fraud_detection_results = fraud_detection(financial_data)
-print(f"Fraud Detection: {fraud_detection_results}")
-
 credit_scores = credit_scoring(financial_data)
-print(f"Credit Scores: {credit_scores}")
 
 # Additional documentation analysis
 doc_classification = document_classification(documents)
-print(f"Document Classification: {doc_classification}")
-
 ner_results = named_entity_recognition(text)
-print(f"Named Entities: {ner_results}")
+
+# Combine results
+results = {
+    'exec_summary': exec_summary_analysis[0],
+    'market_analysis': market_sentiment[0],
+    'financial_projections': financial_forecast.mean(),
+    'existing_financial_data': credit_risk.mean(),
+    'additional_documentation': doc_classification.mean()
+}
+
+# Compute grade
+grade = compute_grade(results)
+print(f"Overall Grade: {grade}")
+
+# Generate feedback
+feedback = generate_feedback(exec_summary_analysis, market_sentiment, market_segments, market_forecast, financial_forecast, financial_ratios, financial_anomalies, credit_risk, fraud_detection_results, credit_scores, doc_classification, ner_results)
+print(feedback)
