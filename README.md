@@ -15,8 +15,8 @@
 5. **Additional Documentation (Business Plan Document, Market Research Reports, Industry Certifications):**
     - **Document Classification:** Text classification models (e.g., Naive Bayes, Support Vector Machines, or deep learning models) can categorize documents into relevant topics or themes.
     - **Named Entity Recognition (NER):** NLP models can extract entities such as company names, product names, or industry-specific terms from textual documents.
-
-**Explanation
+<br><br>
+Explanation
 Model Analysis Functions: Each function is defined to analyze different aspects of the business.
 Compute Grade: A function computes a weighted grade based on normalized results.
 Generate Feedback: A function uses a template to generate comprehensive feedback based on the analysis results.
