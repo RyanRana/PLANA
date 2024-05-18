@@ -1,4 +1,4 @@
-# Business Analysis and Feedback Generator
+# Financial Forecast
 
 This repository contains a Python script for analyzing various aspects of a business plan, including executive summary, market analysis, financial projections, and additional documentation. The script leverages a combination of machine learning models and OpenAI's GPT-3 to generate a comprehensive grade and actionable feedback for the business.
 
