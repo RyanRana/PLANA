@@ -14,8 +14,6 @@ This repository contains a Python script for analyzing various aspects of a busi
 
 You can install all the required packages using the `requirements.txt` file included in this repository.
 
-## Installation
-
 ## Architecture Overview
 
 The application consists of:
