@@ -1,0 +1,9 @@
+flask
+flask_sqlalchemy
+transformers
+sklearn
+numpy
+pandas
+statsmodels
+spacy
+openai
